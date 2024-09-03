@@ -7,18 +7,36 @@ class ChatRoomController extends GetxController {
   late FlutterTts flutterTts;
   bool isListening = false;
   String text = '';
-  int currentIndex = 0;
+
   bool speechAvailable = false;
+
+  var currentIndex = 0.obs;
+  var showNextButton = false.obs;
+  RxList<bool> isTypingComplete =
+      <bool>[].obs; // List to track typing completion
+  var isAnswerReady = <bool>[].obs; // List to track answer readiness
+
   List<Map<String, String>> conversations = [
     {
-      'text': 'Hi Beni, what did you learn in school today?',
-      'answer': "We had a new lesson about plants in science class"
+      'text': "Hi there! How's your day going?",
+      'answer': "Hi! It's going pretty well, thanks. How about you?"
     },
     {
-      'text': 'What is your favorite subject?',
-      'answer': "My favorite subject is science"
+      'text':
+          "Not too bad. I'm just glad to take a break and grab a coffee. Speaking of which, have you decided what you're getting?",
+      'answer': "I think I'll go for a cappuccino. What about you?"
     },
-    // Tambahkan percakapan lainnya di sini
+    {
+      'text':
+          "I'm in the mood for a latte today. Oh, and maybe a slice of cake too.",
+      'answer':
+          "That sounds like a good idea. Which cake are you thinking of getting? "
+    },
+    {
+      'text': "Probably the chocolate fudge cake. It's my weakness!",
+      'answer':
+          "Haha, can't go wrong with chocolate! Alright, I'll go order our drinks and cake."
+    },
   ];
 
   @override
@@ -27,10 +45,18 @@ class ChatRoomController extends GetxController {
     speech = stt.SpeechToText();
     flutterTts = FlutterTts();
     initializeSpeechRecognition();
+
+    // Initialize the lists with the number of conversations
+    isTypingComplete.value =
+        List.generate(conversations.length, (index) => false);
+    isAnswerReady.value = List.generate(conversations.length, (index) => false);
   }
 
   void initializeSpeechRecognition() async {
-    // Implementasi inisialisasi
+    speechAvailable = await speech.initialize();
+    if (!speechAvailable) {
+      showSpeechNotAvailableDialog();
+    }
   }
 
   void startListening() async {
@@ -46,24 +72,28 @@ class ChatRoomController extends GetxController {
     }
   }
 
-  void stopListening() {
+  void stopListening(String answer) {
     isListening = false;
     update();
     speech.stop();
-    checkAnswer();
+    checkAnswer(answer);
   }
 
-  void checkAnswer() {
-    String currentAnswer = conversations[currentIndex]['answer'] ?? '';
-    if (text.toLowerCase() == currentAnswer.toLowerCase()) {
+  void checkAnswer(String answer) {
+    if (text.toLowerCase() == answer.toLowerCase()) {
       Get.snackbar('Correct', 'Correct Answer!');
       speakCorrectAnswer();
+      showNextButton.value = true; // Show next button
     } else {
       Get.snackbar('Wrong', 'Wrong Answer!');
       speakWrongAnswer();
+      showNextButton.value = true; // Hide next button
     }
-    // Pindah ke percakapan berikutnya
-    nextConversation();
+    isTypingComplete[currentIndex.value] =
+        true; // Mark typing complete for the current index
+    isAnswerReady[currentIndex.value] =
+        true; // Mark answer ready for the current index
+    update();
   }
 
   Future<void> speakCorrectAnswer() async {
@@ -71,8 +101,9 @@ class ChatRoomController extends GetxController {
   }
 
   Future<void> speakWrongAnswer() async {
-    await flutterTts.speak(
-        'Wrong! The correct answer is ${conversations[currentIndex]['answer']}');
+    int type = int.parse(currentIndex.value.toString());
+    await flutterTts
+        .speak('Wrong! The correct answer is ${conversations[type]['answer']}');
   }
 
   Future<void> speak(String text) async {
@@ -84,13 +115,17 @@ class ChatRoomController extends GetxController {
   }
 
   void nextConversation() {
-    if (currentIndex < conversations.length - 1) {
-      currentIndex++;
+    if (currentIndex.value < conversations.length - 1) {
+      currentIndex.value++;
+      showNextButton.value =
+          false; // Hide button after moving to next conversation
+      isTypingComplete[currentIndex.value] =
+          false; // Reset typing complete status
+      isAnswerReady[currentIndex.value] = false; // Reset answer readiness
       update();
     }
   }
 }
-
 
 
 // class ChatRoomController extends GetxController {
@@ -98,9 +133,35 @@ class ChatRoomController extends GetxController {
 //   late FlutterTts flutterTts;
 //   bool isListening = false;
 //   String text = '';
-//   String tes = 'Hi Beni, what did you learn in school today?';
-//   String Answer = "We had a new lesson about plants in science class";
+
 //   bool speechAvailable = false;
+
+//   var currentIndex = 0.obs;
+//   var showNextButton = false.obs;
+//   var isTypingComplete = false.obs;
+
+//   List<Map<String, String>> conversations = [
+//     {
+//       'text': "Hi there! How's your day going?",
+//       'answer': "Hi! It's going pretty well, thanks. How about you?"
+//     },
+//     {
+//       'text':
+//           "Not too bad. I'm just glad to take a break and grab a coffee. Speaking of which, have you decided what you're getting?",
+//       'answer': "I think I'll go for a cappuccino. What about you?"
+//     },
+//     {
+//       'text':
+//           "I'm in the mood for a latte today. Oh, and maybe a slice of cake too.",
+//       'answer':
+//           "That sounds like a good idea. Which cake are you thinking of getting? "
+//     },
+//     {
+//       'text': "Probably the chocolate fudge cake. It's my weakness!",
+//       'answer':
+//           "Haha, can't go wrong with chocolate! Alright, I'll go order our drinks and cake."
+//     },
+//   ];
 
 //   @override
 //   void onInit() {
@@ -130,30 +191,36 @@ class ChatRoomController extends GetxController {
 //     }
 //   }
 
-//   void stopListening() {
+//   void stopListening(String answer) {
 //     isListening = false;
 //     update();
 //     speech.stop();
-//     checkAnswer();
+//     checkAnswer(answer);
 //   }
 
-//   void checkAnswer() {
-//     if (text.toLowerCase() == Answer.toLowerCase()) {
+//   void checkAnswer(String answer) {
+//     if (text.toLowerCase() == answer.toLowerCase()) {
 //       Get.snackbar('Correct', 'Correct Answer!');
 //       speakCorrectAnswer();
+//       showNextButton.value = true; // Show next button
+//       isTypingComplete.value = true; // Indicate typing is complete
 //     } else {
 //       Get.snackbar('Wrong', 'Wrong Answer!');
 //       speakWrongAnswer();
+//       showNextButton.value = true; // Hide next button
+//       isTypingComplete.value = true; // Indicate typing is complete
 //     }
+//     update();
 //   }
 
-//   // Fungsi untuk membacakan teks yang benar
 //   Future<void> speakCorrectAnswer() async {
 //     await flutterTts.speak('Correct! The answer is $text');
 //   }
 
 //   Future<void> speakWrongAnswer() async {
-//     await flutterTts.speak('Wrong! The correct answer is $Answer');
+//     int type = int.parse(currentIndex.value.toString());
+//     await flutterTts
+//         .speak('Wrong! The correct answer is ${conversations[type]['answer']}');
 //   }
 
 //   Future<void> speak(String text) async {
@@ -161,20 +228,16 @@ class ChatRoomController extends GetxController {
 //   }
 
 //   void showSpeechNotAvailableDialog() {
-//     Get.dialog(
-//       AlertDialog(
-//         title: Text('Speech Recognition Unavailable'),
-//         content: Text(
-//             'Speech recognition is not available on your device. Please try again later or use a different device.'),
-//         actions: <Widget>[
-//           TextButton(
-//             child: Text('OK'),
-//             onPressed: () {
-//               Get.back();
-//             },
-//           ),
-//         ],
-//       ),
-//     );
+//     // Implementasi dialog
+//   }
+
+//   void nextConversation() {
+//     if (currentIndex.value < conversations.length - 1) {
+//       currentIndex.value++;
+//       showNextButton.value =
+//           false; // Hide button after moving to next conversation
+//       isTypingComplete.value = false; // Reset typing complete status
+//       update();
+//     }
 //   }
 // }

@@ -1,40 +1,105 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 import 'package:get/get.dart';
+import 'package:typewritertext/typewritertext.dart';
 
 import '../controllers/chat_room_controller.dart';
 
 class ChatRoomView extends GetView<ChatRoomController> {
-  const ChatRoomView({Key? key}) : super(key: key);
+  ChatRoomView({Key? key}) : super(key: key);
+
+  var answerQuestion = ''.obs;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat Room')),
+      backgroundColor: Color(0xffA0DACF),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          'Listen And Speaking',
+          style: TextStyle(fontFamily: 'Poppins'),
+        ),
+        backgroundColor: Color(0xffA0DACF),
+      ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
         width: Get.width,
         height: Get.height,
-        child: ListView.builder(
-          itemCount: controller.conversations.length,
-          itemBuilder: (BuildContext context, int index) {
-            final dataChat = controller.conversations[index];
-            return Column(
-              children: [
-                ChatItem(
-                  controller: controller,
-                  Sendder: false,
-                  textChat: dataChat['text'] ?? '',
-                ),
-                ChatItem(
-                  controller: controller,
-                  Sendder: true,
-                  textChat: dataChat['answer'] ?? '',
-                ),
-              ],
-            );
-          },
+        child: GestureDetector(
+          child: Obx(() => ListView.builder(
+                itemCount: controller.currentIndex.value + 1,
+                itemBuilder: (BuildContext context, int index) {
+                  final dataChat = controller.conversations[index];
+                  bool cek = index == controller.currentIndex.value;
+                  answerQuestion.value = dataChat['answer']!;
+
+                  return Column(
+                    children: [
+                      ChatItem(
+                        controller: controller,
+                        Sendder: false,
+                        textChat: dataChat['text']!,
+                        onTextFinished: () {
+                          controller.isTypingComplete[index] = true;
+                          controller.update();
+                        },
+                      ),
+                      Obx(() {
+                        return controller.isTypingComplete[index]
+                            ? ChatItem(
+                                controller: controller,
+                                Sendder: true,
+                                textChat: dataChat['answer']!,
+                                onTextFinished: () {},
+                              )
+                            : SizedBox
+                                .shrink(); // Tidak menampilkan apa-apa jika belum selesai
+                      }),
+                      if (cek)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GetBuilder<ChatRoomController>(
+                            builder: (controller) {
+                              print(controller.showNextButton.value);
+                              return controller.showNextButton.value
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        controller.nextConversation();
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.all(10),
+                                        width: Get.width * 0.3,
+                                        height: Get.height * 0.04,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: Color(0xffFDC024),
+                                            boxShadow: [
+                                              BoxShadow(offset: Offset(0, 3))
+                                            ]),
+                                        child: Align(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              'Next Dialog',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.bold),
+                                            )),
+                                      ),
+                                    )
+                                  : SizedBox
+                                      .shrink(); // Hide button if not needed
+                            },
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              )),
         ),
       ),
       bottomNavigationBar: Container(
@@ -44,27 +109,75 @@ class ChatRoomView extends GetView<ChatRoomController> {
           children: [
             GetBuilder<ChatRoomController>(
               builder: (controller) {
-                return TextField(
-                  controller: TextEditingController(text: controller.text),
-                  readOnly: true,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Your spoken text will appear here',
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    controller: TextEditingController(text: controller.text),
+                    readOnly: true,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none),
+                        labelText: 'Your Speak',
+                        labelStyle: TextStyle(fontFamily: 'Poppins'),
+                        hintText: 'Your spoken text will appear here',
+                        hintStyle: TextStyle(fontFamily: 'Poppins')),
                   ),
                 );
               },
             ),
             GetBuilder<ChatRoomController>(
               builder: (controller) {
-                return FilledButton(
-                  onPressed: controller.isListening
-                      ? controller.stopListening
-                      : controller.startListening,
-                  child: Text(controller.isListening
-                      ? 'Stop Listening'
-                      : 'Start Speak'),
-                );
+                return controller.isListening
+                    ? GestureDetector(
+                        onTap: () {
+                          controller.stopListening(answerQuestion.value);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.all(10),
+                          width: Get.width * 0.5,
+                          height: Get.height * 0.05,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Color(0xffFDC024),
+                              boxShadow: [BoxShadow(offset: Offset(0, 3))]),
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Stop Speaking',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold),
+                              )),
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          controller.startListening();
+                        },
+                        child: Container(
+                          margin: EdgeInsets.all(10),
+                          width: Get.width * 0.5,
+                          height: Get.height * 0.05,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Color(0xffFDC024),
+                              boxShadow: [BoxShadow(offset: Offset(0, 3))]),
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Start Speaking',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold),
+                              )),
+                        ),
+                      );
               },
             ),
           ],
@@ -80,14 +193,17 @@ class ChatItem extends StatelessWidget {
     required this.textChat,
     required this.Sendder,
     required this.controller,
+    required this.onTextFinished,
   });
 
   final String textChat;
   final ChatRoomController controller;
   final bool Sendder;
+  final VoidCallback onTextFinished;
 
   @override
   Widget build(BuildContext context) {
+    controller.speak(textChat);
     return Container(
       child: Sendder
           ? Row(
@@ -111,17 +227,22 @@ class ChatItem extends StatelessWidget {
                   child: GetBuilder<ChatRoomController>(
                     builder: (controller) {
                       return Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            border: Border.all(),
+                            color: Colors.white,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(12),
                               topRight: Radius.circular(12),
                               bottomLeft: Radius.circular(12),
                             )),
-                        child: Text(
+                        child: TypeWriter.text(
                           textChat,
                           textAlign: TextAlign.justify,
+                          onFinished: (value) {
+                            onTextFinished();
+                          },
+                          duration: Duration(milliseconds: 50),
                         ),
                       );
                     },
@@ -138,15 +259,19 @@ class ChatItem extends StatelessWidget {
                       return Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            border: Border.all(),
+                            color: Colors.white,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(12),
                               topRight: Radius.circular(12),
                               bottomRight: Radius.circular(12),
                             )),
-                        child: Text(
+                        child: TypeWriter.text(
                           textChat,
                           textAlign: TextAlign.justify,
+                          onFinished: (value) {
+                            onTextFinished();
+                          },
+                          duration: Duration(milliseconds: 70),
                         ),
                       );
                     },
