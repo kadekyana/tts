@@ -6,6 +6,8 @@ import '../modules/Dashboard/bindings/dashboard_binding.dart';
 import '../modules/Dashboard/views/dashboard_view.dart';
 import '../modules/Home/bindings/home_binding.dart';
 import '../modules/Home/views/home_view.dart';
+import '../modules/SplashScreen/bindings/splash_screen_binding.dart';
+import '../modules/SplashScreen/views/splash_screen_view.dart';
 
 part 'app_routes.dart';
 
@@ -29,6 +31,11 @@ class AppPages {
       name: _Paths.DASHBOARD,
       page: () => const DashboardView(),
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPLASH_SCREEN,
+      page: () => const SplashScreenView(),
+      binding: SplashScreenBinding(),
     ),
   ];
 }

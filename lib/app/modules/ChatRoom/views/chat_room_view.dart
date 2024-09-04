@@ -104,7 +104,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
       ),
       bottomNavigationBar: Container(
         width: Get.width,
-        height: Get.height * 0.15,
+        height: Get.height * 0.2,
         child: Column(
           children: [
             GetBuilder<ChatRoomController>(
@@ -129,6 +129,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                 );
               },
             ),
+            Spacer(),
             GetBuilder<ChatRoomController>(
               builder: (controller) {
                 return controller.isListening

@@ -4,8 +4,8 @@ flutter_native_splash :
   web : false
 
   color : "#A0DACF"
-  image : "assets/images/logo.png"
+  image : "assets/images/logo penuh.png"
 
   android_12:
     color : "#A0DACF"
-    image : "assets/images/logo.png"
+    image : "assets/images/logo penuh.png"

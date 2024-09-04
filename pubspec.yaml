@@ -39,6 +39,7 @@ dependencies:
   get: ^4.6.6
   flutter_tts: ^4.0.2
   typewritertext: ^3.0.8
+  flutter_splash_screen: ^3.0.0
   flutter_native_splash: ^2.4.0
 
 dev_dependencies:
