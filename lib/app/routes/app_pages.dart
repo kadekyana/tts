@@ -6,6 +6,10 @@ import '../modules/Dashboard/bindings/dashboard_binding.dart';
 import '../modules/Dashboard/views/dashboard_view.dart';
 import '../modules/Home/bindings/home_binding.dart';
 import '../modules/Home/views/home_view.dart';
+import '../modules/Level/bindings/level_binding.dart';
+import '../modules/Level/views/level_view.dart';
+import '../modules/ResultPage/bindings/result_page_binding.dart';
+import '../modules/ResultPage/views/result_page_view.dart';
 import '../modules/SplashScreen/bindings/splash_screen_binding.dart';
 import '../modules/SplashScreen/views/splash_screen_view.dart';
 
@@ -36,6 +40,16 @@ class AppPages {
       name: _Paths.SPLASH_SCREEN,
       page: () => const SplashScreenView(),
       binding: SplashScreenBinding(),
+    ),
+    GetPage(
+      name: _Paths.RESULT_PAGE,
+      page: () => ResultPageView(),
+      binding: ResultPageBinding(),
+    ),
+    GetPage(
+      name: _Paths.LEVEL,
+      page: () => const LevelView(),
+      binding: LevelBinding(),
     ),
   ];
 }

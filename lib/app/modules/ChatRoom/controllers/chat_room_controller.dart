@@ -12,7 +12,7 @@ class ChatRoomController extends GetxController {
 
   bool speechAvailable = false;
 
-  var scoreUser = 0.obs;
+  var scoreUser = 0.0.obs;
   var currentIndex = 0.obs;
   var showNextButton = false.obs;
   RxList<bool> isTypingComplete =
@@ -20,6 +20,8 @@ class ChatRoomController extends GetxController {
   var isAnswerReady = <bool>[].obs; // List to track answer readiness
   List<String> resultWords = [];
   String? resultSentence;
+  RxDouble scoreCorrect = 0.0.obs;
+  RxDouble scoreWrong = 0.0.obs;
 
   List<Map<String, String>> conversations = [
     {
@@ -84,7 +86,18 @@ class ChatRoomController extends GetxController {
     checkAnswer(answer);
   }
 
+  void Scoring() {
+    int maxScore = 100;
+    int totalQuestion = conversations.length;
+    scoreCorrect.value = maxScore / totalQuestion;
+    scoreWrong.value = scoreCorrect / 2;
+    update();
+    print(scoreCorrect);
+    print(scoreWrong);
+  }
+
   void checkAnswer(String answer) async {
+    Scoring();
     print(isAnswerReady);
 
     if (isAnswerReady[currentIndex.value] == true) {
@@ -119,7 +132,7 @@ class ChatRoomController extends GetxController {
       resultSentence = resultWords.join(' ');
 
       if (clearText.toLowerCase() == clearAnswer.toLowerCase()) {
-        scoreUser += 20;
+        scoreUser.value += scoreCorrect.value;
         update();
         speakCorrectAnswer();
         showNextButton.value = true; // Tampilkan tombol next
@@ -128,7 +141,7 @@ class ChatRoomController extends GetxController {
             colorText: Colors.white,
             backgroundColor: Colors.amber);
       } else {
-        scoreUser += 10;
+        scoreUser.value += scoreWrong.value;
         update();
         speakWrongAnswer();
         showNextButton.value = true; // Tampilkan tombol next

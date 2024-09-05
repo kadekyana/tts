@@ -29,78 +29,89 @@ class ChatRoomView extends GetView<ChatRoomController> {
         width: Get.width,
         height: Get.height,
         child: GestureDetector(
-          child: Obx(() => ListView.builder(
-                itemCount: controller.currentIndex.value + 1,
-                itemBuilder: (BuildContext context, int index) {
-                  final dataChat = controller.conversations[index];
-                  bool cek = index == controller.currentIndex.value;
-                  answerQuestion.value = dataChat['answer']!;
+            child: Obx(() => ListView.builder(
+                  itemCount: controller.currentIndex.value + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    final dataChat = controller.conversations[index];
+                    bool cek = index == controller.currentIndex.value;
+                    bool isLastDialog =
+                        index == controller.conversations.length - 1;
+                    answerQuestion.value = dataChat['answer']!;
 
-                  return Column(
-                    children: [
-                      ChatItem(
-                        controller: controller,
-                        Sendder: false,
-                        textChat: dataChat['text']!,
-                        onTextFinished: () {
-                          controller.isTypingComplete[index] = true;
-                          controller.update();
-                        },
-                      ),
-                      Obx(() {
-                        return controller.isTypingComplete[index]
-                            ? ChatItem(
-                                controller: controller,
-                                Sendder: true,
-                                textChat: dataChat['answer']!,
-                                onTextFinished: () {},
-                              )
-                            : SizedBox
-                                .shrink(); // Tidak menampilkan apa-apa jika belum selesai
-                      }),
-                      if (cek)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GetBuilder<ChatRoomController>(
-                            builder: (controller) {
-                              print(controller.showNextButton.value);
-                              return controller.showNextButton.value
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        controller.nextConversation();
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.all(10),
-                                        width: Get.width * 0.3,
-                                        height: Get.height * 0.04,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Color(0xffFDC024),
-                                            boxShadow: [
-                                              BoxShadow(offset: Offset(0, 3))
-                                            ]),
-                                        child: Align(
+                    return Column(
+                      children: [
+                        ChatItem(
+                          controller: controller,
+                          Sendder: false,
+                          textChat: dataChat['text']!,
+                          onTextFinished: () {
+                            controller.isTypingComplete[index] = true;
+                            controller.update();
+                          },
+                        ),
+                        Obx(() {
+                          return controller.isTypingComplete[index]
+                              ? ChatItem(
+                                  controller: controller,
+                                  Sendder: true,
+                                  textChat: dataChat['answer']!,
+                                  onTextFinished: () {},
+                                )
+                              : SizedBox
+                                  .shrink(); // Tidak menampilkan apa-apa jika belum selesai
+                        }),
+                        if (cek)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GetBuilder<ChatRoomController>(
+                              builder: (controller) {
+                                print(controller.showNextButton.value);
+                                return controller.showNextButton.value
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          if (isLastDialog) {
+                                            Get.offAllNamed('result-page',
+                                                arguments:
+                                                    controller.scoreUser);
+                                            print("Conversation finished");
+                                          } else {
+                                            controller.nextConversation();
+                                          }
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.all(10),
+                                          width: Get.width * 0.3,
+                                          height: Get.height * 0.04,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              color: Color(0xffFDC024),
+                                              boxShadow: [
+                                                BoxShadow(offset: Offset(0, 3))
+                                              ]),
+                                          child: Align(
                                             alignment: Alignment.center,
                                             child: Text(
-                                              'Next Dialog',
+                                              isLastDialog
+                                                  ? 'Finish'
+                                                  : 'Next Dialog',
                                               style: TextStyle(
                                                   fontSize: 20,
                                                   fontFamily: 'Poppins',
                                                   fontWeight: FontWeight.bold),
-                                            )),
-                                      ),
-                                    )
-                                  : SizedBox
-                                      .shrink(); // Hide button if not needed
-                            },
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : SizedBox
+                                        .shrink(); // Hide button if not needed
+                              },
+                            ),
                           ),
-                        ),
-                    ],
-                  );
-                },
-              )),
-        ),
+                      ],
+                    );
+                  },
+                ))),
       ),
       bottomNavigationBar: Container(
         width: Get.width,

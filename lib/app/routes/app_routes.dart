@@ -7,6 +7,8 @@ abstract class Routes {
   static const CHAT_ROOM = _Paths.CHAT_ROOM;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
+  static const RESULT_PAGE = _Paths.RESULT_PAGE;
+  static const LEVEL = _Paths.LEVEL;
 }
 
 abstract class _Paths {
@@ -15,4 +17,6 @@ abstract class _Paths {
   static const CHAT_ROOM = '/chat-room';
   static const DASHBOARD = '/dashboard';
   static const SPLASH_SCREEN = '/splash-screen';
+  static const RESULT_PAGE = '/result-page';
+  static const LEVEL = '/level';
 }

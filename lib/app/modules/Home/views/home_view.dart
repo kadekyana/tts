@@ -43,7 +43,7 @@ class HomeView extends GetView<HomeController> {
               ),
               GestureDetector(
                 onTap: () {
-                  Get.toNamed('/chat-room');
+                  Get.toNamed('/level');
                 },
                 child: Container(
                   width: Get.width * 0.8,
