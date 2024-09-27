@@ -1,12 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
 import '../controllers/dashboard_controller.dart';
 
-class DashboardView extends GetView<DashboardController> {
-  const DashboardView({Key? key}) : super(key: key);
+class DashboardView extends StatelessWidget {
+  final DashboardController controllerDashboard =
+      Get.put(DashboardController());
+  DashboardView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(

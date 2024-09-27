@@ -41,6 +41,10 @@ dependencies:
   typewritertext: ^3.0.8
   flutter_splash_screen: ^3.0.0
   flutter_native_splash: ^2.4.0
+  flutter_spinkit: ^5.2.1
+  sqflite: ^2.3.3+1
+  intl: ^0.19.0
+  assets_audio_player: ^3.1.1
 
 dev_dependencies:
   flutter_test:

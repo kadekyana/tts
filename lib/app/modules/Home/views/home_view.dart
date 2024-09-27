@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:get/get.dart';
+import 'package:tts/app/modules/Level/controllers/level_controller.dart';
 
 import '../controllers/home_controller.dart';
 
@@ -42,7 +43,9 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  final controllerLevel = Get.put(LevelController());
+                  await controllerLevel.fetchScores();
                   Get.toNamed('/level');
                 },
                 child: Container(
@@ -71,7 +74,7 @@ class HomeView extends GetView<HomeController> {
                       Expanded(
                           flex: 2,
                           child: Text(
-                            'Listen And Speaking',
+                            'Look And Say',
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 16,

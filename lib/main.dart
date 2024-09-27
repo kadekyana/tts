@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:get/get.dart';
+import 'package:tts/app/modules/Level/controllers/level_controller.dart';
 import 'package:tts/app/routes/app_pages.dart';
+import 'package:tts/sql_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await inisialisasiDatabase();
   runApp(SpeechQuizApp());
+}
+
+Future<void> inisialisasiDatabase() async {
+  await SQLHelper.db();
+  print('Database berhasil diinisialisasi');
+  SQLHelper.checkScoreData();
+  SQLHelper.checkLevelsData();
 }
 
 Future<void> hideScreen() async {
@@ -23,6 +34,7 @@ class _SpeechQuizAppState extends State<SpeechQuizApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    Get.put(LevelController());
     hideScreen();
   }
 
