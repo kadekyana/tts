@@ -74,7 +74,7 @@ class HomeView extends GetView<HomeController> {
                       Expanded(
                           flex: 2,
                           child: Text(
-                            'Look And Say',
+                            'My Next Words',
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 16,

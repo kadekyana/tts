@@ -1,34 +1,77 @@
 import 'package:sqflite/sqflite.dart' as sql;
 
 class SQLHelper {
+  // Membuat tabel 'score' dengan penambahan 'quiz_type' untuk membedakan jenis kuis
   static Future<void> createTables(sql.Database database) async {
-    await database.execute("""CREATE TABLE score(
+    await database.execute("""
+      CREATE TABLE score(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
         score INTEGER, 
         timestamp TEXT,
-        level_no INTEGER
-        )""");
+        level_no INTEGER,
+        quiz_type TEXT
+      )
+    """);
   }
 
+  // Membuat tabel 'levels'
   static Future<void> createLevelsTable(sql.Database database) async {
     await database.execute('''
-    CREATE TABLE levels(
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      no INTEGER,
-      title TEXT,
-      lock TEXT
-    )
-  ''');
+      CREATE TABLE levels(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        no INTEGER,
+        title TEXT,
+        lock TEXT
+      )
+    ''');
   }
 
+  // Membuka atau membuat database, dan membuat tabel jika belum ada
+  static Future<sql.Database> db() async {
+    return sql.openDatabase(
+      'dbresult.db',
+      version: 1,
+      onCreate: (sql.Database database, int version) async {
+        print('Creating tables...');
+        await createTables(database);
+        await createLevelsTable(database);
+      },
+    );
+  }
+
+  // Memasukkan atau memperbarui skor dengan tambahan 'quiz_type'
+  static Future<int> resultScore(
+      int score, String timestamp, int levelNo, String quizType) async {
+    final db = await SQLHelper.db();
+    final data = {
+      'score': score,
+      'timestamp': timestamp,
+      'level_no': levelNo,
+      'quiz_type': quizType, // Menyimpan jenis kuis
+    };
+
+    final id = await db.insert(
+      'score',
+      data,
+      conflictAlgorithm: sql.ConflictAlgorithm.replace,
+    );
+
+    // Membuka level berikutnya jika level ini selesai
+    if (levelNo < 5) {
+      await unlockNextLevel(levelNo + 1);
+    }
+
+    return id;
+  }
+
+  // Mengupdate skor berdasarkan level_no
   static Future<void> updateScore(int score, int levelNo) async {
     final db = await SQLHelper.db();
     final data = {
       'score': score,
-      'timestamp':
-          DateTime.now().toIso8601String(), // Menggunakan timestamp terbaru
+      'timestamp': DateTime.now().toIso8601String(),
     };
-    // Update skor berdasarkan level_no
+
     await db.update(
       'score',
       data,
@@ -37,96 +80,60 @@ class SQLHelper {
     );
   }
 
-  static Future<sql.Database> db() async {
-    return sql.openDatabase('dbresult.db', version: 1,
-        onCreate: (sql.Database database, int version) async {
-      print('...creating a table');
-      await createTables(database);
-      await createLevelsTable(database);
-    });
-  }
-
-  static Future<int> resultScore(
-      int score, String timestamp, int levelNo) async {
-    final db = await SQLHelper.db();
-    final data = {
-      'score': score,
-      'timestamp': timestamp,
-      'level_no': levelNo, // Menyimpan level_no bersama dengan score
-    };
-    final id = await db.insert('score', data,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
-
-    // Membuka level berikutnya jika level ini selesai
-    if (levelNo < 5) {
-      // Jika level terakhir (5) belum tercapai
-      SQLHelper.unlockNextLevel(levelNo + 1);
-    }
-
-    return id;
-  }
-
-  static Future<void> addLevelsTable() async {
-    final db = await SQLHelper.db();
-    await db.execute('''
-    CREATE TABLE IF NOT EXISTS levels (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      no INTEGER,
-      title TEXT,
-      lock TEXT
-    )
-  ''');
-  }
-
+  // Membuka level berikutnya dengan mengubah status 'lock' menjadi false
   static Future<void> unlockNextLevel(int nextLevel) async {
-    // Fungsi untuk membuka level berikutnya
-    // Logika bisa disesuaikan sesuai dengan kebutuhan
     final db = await SQLHelper.db();
-    await db.update('levels', {'lock': 'false'},
-        where: 'no = ?', whereArgs: [nextLevel]);
+    await db.update(
+      'levels',
+      {'lock': 'false'},
+      where: 'no = ?',
+      whereArgs: [nextLevel],
+    );
   }
 
-  static Future<List<Map<String, dynamic>>> getScore() async {
+  // Mengambil skor dari database berdasarkan jenis kuis (quiz_type)
+  static Future<List<Map<String, dynamic>>> getScore(String quizType) async {
     final db = await SQLHelper.db();
-    return db.query('score', orderBy: "id");
+    return db.query(
+      'score',
+      where: 'quiz_type = ?',
+      whereArgs: [quizType],
+      orderBy: "id",
+    );
   }
 
+  // Mengupdate status 'lock' pada level tertentu
   static Future<void> updateLevelLock(int levelNo, String lockStatus) async {
     final db = await SQLHelper.db();
-    await db.rawUpdate('''
-    UPDATE levels
-    SET lock = ?
-    WHERE no = ?
-  ''', [lockStatus, levelNo]);
+    await db.update(
+      'levels',
+      {'lock': lockStatus},
+      where: 'no = ?',
+      whereArgs: [levelNo],
+    );
   }
 
+  // Mengecek data di tabel 'levels'
   static Future<void> checkLevelsData() async {
     final db = await SQLHelper.db();
-    // Query untuk mengambil semua data dari tabel levels
-    final List<Map<String, dynamic>> levels = await db.query('levels');
+    final levels = await db.query('levels');
 
-    // Menampilkan hasil query di console
     if (levels.isNotEmpty) {
       print('Data dari tabel levels:');
-      levels.forEach((row) {
-        print(row);
-      });
+      levels.forEach((row) => print(row));
     } else {
       print('Tidak ada data di tabel levels.');
     }
   }
 
+  // Mengecek data di tabel 'score'
   static Future<void> checkScoreData() async {
     final db = await SQLHelper.db();
-    // Query untuk mengambil semua data dari tabel score
-    final List<Map<String, dynamic>> scores = await db.query('score');
+    final scores = await db.query('score');
 
-    // Menampilkan hasil query di console
     if (scores.isNotEmpty) {
       print('Data dari tabel score:');
-      scores.forEach((row) {
-        print(row);
-      });
+      scores.forEach((row) => print(row));
     } else {
       print('Tidak ada data di tabel score.');
     }

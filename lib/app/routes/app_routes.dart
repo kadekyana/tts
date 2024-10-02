@@ -9,6 +9,7 @@ abstract class Routes {
   static const SPLASH_SCREEN = _Paths.SPLASH_SCREEN;
   static const RESULT_PAGE = _Paths.RESULT_PAGE;
   static const LEVEL = _Paths.LEVEL;
+  static const LEVEL_L_W = _Paths.LEVEL_L_W;
 }
 
 abstract class _Paths {
@@ -19,4 +20,5 @@ abstract class _Paths {
   static const SPLASH_SCREEN = '/splash-screen';
   static const RESULT_PAGE = '/result-page';
   static const LEVEL = '/level';
+  static const LEVEL_L_W = '/level-l-w';
 }

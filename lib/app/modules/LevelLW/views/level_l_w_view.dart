@@ -1,70 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/level_controller.dart';
 
-class LevelView extends GetView<LevelController> {
-  const LevelView({Key? key}) : super(key: key);
+import '../controllers/level_l_w_controller.dart';
+
+class LevelLWView extends GetView<LevelLWController> {
+  const LevelLWView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Get.toNamed('/home');
-              },
-              icon: Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.black,
-              )),
-          backgroundColor: Color(0xffA0DACF),
-          title: const Text(
-            'Menu Level',
-            style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Look and Say'),
-              Tab(text: 'Look and Write'),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: Color(0xffA0DACF),
+      appBar: AppBar(
+        backgroundColor: Color(0xffA0DACF),
+        title: const Text(
+          'Look And Write Menu Level',
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
         ),
-        body: TabBarView(
-          children: [
-            _buildLevelList(controller.lookAndSayLevels, 'look_and_say'),
-            _buildLevelList(controller.lookAndWriteLevels, 'look_and_write'),
-          ],
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Get.toNamed('/home');
+          },
+          icon: Icon(Icons.arrow_back_ios_new),
         ),
       ),
+      body: Container(
+        width: Get.width,
+        height: Get.height,
+        child: Obx(() {
+          return ListView.builder(
+              itemCount: controller.levels.length,
+              itemBuilder: (context, index) {
+                final data = controller.levels[index];
+                final isLocked = data['lock'] == "true";
+                final score = controller.scores[int.parse(data['no']!)] ?? 0;
+
+                return WidgetButton(
+                    no: data["no"]!,
+                    title: data['title']!,
+                    lock: isLocked,
+                    score: score);
+              });
+        }),
+      ),
     );
-  }
-
-  // Fungsi untuk menampilkan daftar level berdasarkan kategori
-  Widget _buildLevelList(RxList<Map<String, String>> levels, String category) {
-    return Obx(() {
-      return ListView.builder(
-        itemCount: levels.length,
-        itemBuilder: (context, index) {
-          final data = levels[index];
-          final isLocked = data['lock'] == "true";
-          final score = (category == 'look_and_say')
-              ? controller.lookAndSayScores[int.parse(data['no']!)] ?? 0
-              : controller.lookAndWriteScores[int.parse(data['no']!)] ?? 0;
-
-          return WidgetButton(
-            no: data["no"]!,
-            title: data['title']!,
-            lock: isLocked,
-            score: score,
-            category: category,
-          );
-        },
-      );
-    });
   }
 }
 
@@ -75,41 +55,27 @@ class WidgetButton extends StatelessWidget {
     required this.title,
     required this.lock,
     required this.score,
-    required this.category,
   });
 
   final String no;
   final String title;
   final bool lock;
   final int score;
-  final String category;
 
   @override
   Widget build(BuildContext context) {
-    final levelController = Get.find<LevelController>();
+    final LevelController = Get.find<LevelLWController>();
 
     return GestureDetector(
       onTap: () {
         if (!lock) {
           // Kirim data percakapan ke halaman chat room
           int levelNo = int.parse(no);
-          if (category == 'look_and_say') {
-            List<Map<String, String>> conversations =
-                levelController.getLookAndSayConversationsByLevel(levelNo);
-            Get.toNamed('/chat-room', arguments: {
-              'conversations': conversations,
-              'no': levelNo,
-              'mode': category
-            });
-          } else {
-            List<Map<String, String>> conversations =
-                levelController.getLookAndWriteConversationsByLevel(levelNo);
-            Get.toNamed('/chat-room', arguments: {
-              'conversations': conversations,
-              'no': levelNo,
-              'mode': category
-            });
-          }
+          List<Map<String, String>> conversations =
+              LevelController.getConversationsByLevel(levelNo);
+
+          Get.toNamed('/chat-room',
+              arguments: {'conversations': conversations, 'no': levelNo});
         }
       },
       child: Container(
