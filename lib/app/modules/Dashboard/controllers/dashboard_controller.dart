@@ -8,7 +8,7 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    audioManager.init();
+    // audioManager.init();
   }
 
   @override

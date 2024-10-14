@@ -197,42 +197,37 @@ class LevelController extends GetxController {
       case 1:
         return [
           {
-            'image': 'assets/images/1.png',
-            'text': "Naruto is reading a book in the library",
-            'answer': "Reading"
+            'image': 'assets/images/lnw1.png',
+            'text': "Joshua is swimming",
+            'answer': "Swimming"
           },
           {
-            'image': 'assets/images/2.png',
-            'text': "Cici is writing in the classroom",
-            'answer': "Writing"
+            'image': 'assets/images/lnw2.png',
+            'text': "Cici is eat",
+            'answer': "Eat"
           },
           {
-            'image': 'assets/images/3.png',
-            'text': "Students are discussing in the classroom",
-            'answer': "Discussing"
-          },
-          {
-            'image': 'assets/images/4.png',
-            'text': "Aisha and Cici are going to school by bike",
-            'answer': "Going"
-          },
-          {
-            'image': 'assets/images/5.png',
-            'text': "Aisha and Cici are dancing 'Tari Piring' in the classroom",
-            'answer': "Dancing 'Tari Piring'"
+            'image': 'assets/images/lnw3.png',
+            'text': "Joshua is sleep",
+            'answer': "Sleep"
           },
         ];
       case 2:
         return [
           {
-            'image': 'assets/images/6.png',
-            'text': "Garage",
-            'answer': "Garage"
+            'image': 'assets/images/base1.png',
+            'text': "Number of the house Mr.Putra is sixty-three",
+            'answer': "Sixty-Three"
           },
           {
-            'image': 'assets/images/7.png',
-            'text': "Living Room",
-            'answer': "Living Room"
+            'image': 'assets/images/base2.png',
+            'text': "Number of the house Mr.Putra is sixty-seven",
+            'answer': "Sixty-Seven"
+          },
+          {
+            'image': 'assets/images/base3.png',
+            'text': "Number of the house Mr.Ilham is seventy-one",
+            'answer': "seventy-one"
           },
         ];
       case 3:

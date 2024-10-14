@@ -108,57 +108,75 @@ class ChatRoomController extends GetxController {
       );
       await flutterTts
           .speak('You already tried it! Let\'s go to the next dialog');
+      return;
     } else {
-      // Create a list to store highlighted text
-      String clearText = removePunctuation(text);
-
-      List<TextSpan> highlightedText = getHighlightedText(clearText, answer);
-
-      // Process the answer checking
-      String clearAnswer = removePunctuation(answer);
-      List<String> correctWords = clearText.split(' ');
-      List<String> answerWords = clearAnswer.split(' ');
-
-      // Reset resultWords and highlightedText for new data
-      resultWords.clear();
-      highlightedText.clear();
-
-      // Compare word by word
-      for (int i = 0; i < correctWords.length; i++) {
-        if (i < answerWords.length &&
-            correctWords[i].toLowerCase() == answerWords[i].toLowerCase()) {
-          resultWords.add(correctWords[i]); // Correct answer
-          highlightedText.add(TextSpan(
-              text: correctWords[i], style: TextStyle(color: Colors.green)));
-        } else {
-          highlightedText.add(TextSpan(
-              text: correctWords[i], style: TextStyle(color: Colors.red)));
-        }
+      // Validasi jika jawaban kosong
+      if (answer.trim().isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Your answer cannot be empty!',
+          duration: Duration(seconds: 5),
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
+        await flutterTts.speak('Your answer cannot be empty!');
+        return;
       }
 
-      // Store the highlighted text for the current conversation
-      // conversations[currentIndex.value]['highlightedText'] = highlightedText;
+      // Hapus tanda baca dan spasi berlebih, ubah ke huruf kecil
+      String clearText = removePunctuation(text).toLowerCase().trim();
+      String clearAnswer = removePunctuation(answer).toLowerCase().trim();
 
-      // Check the overall answer correctness
-      print(clearAnswer);
-      print(clearText);
-      if (clearText.toLowerCase() == clearAnswer.toLowerCase()) {
+      print("Correct Text: $clearText"); // Debugging
+      print("User Answer: $clearAnswer"); // Debugging
+
+      // Pastikan validasi perbandingan seluruh jawaban
+      if (clearText == clearAnswer) {
         scoreUser.value += scoreCorrect.value;
         update();
         speakCorrectAnswer();
         showNextButton.value = true;
-        Get.snackbar('Correct', 'Correct Answer!\nYour Score Now: $scoreUser',
-            duration: Duration(seconds: 5),
-            colorText: Colors.white,
-            backgroundColor: Colors.amber);
+        Get.snackbar(
+          'Correct',
+          'Correct Answer!\nYour Score Now: $scoreUser',
+          duration: Duration(seconds: 5),
+          colorText: Colors.white,
+          backgroundColor: Colors.amber,
+        );
       } else {
+        // Jika jawaban salah, periksa kata per kata
+        List<String> correctWords = clearText.split(' ');
+        List<String> answerWords = clearAnswer.split(' ');
+
+        resultWords.clear();
+        List<TextSpan> highlightedText = [];
+
+        for (int i = 0; i < correctWords.length; i++) {
+          if (i < answerWords.length && correctWords[i] == answerWords[i]) {
+            resultWords.add(correctWords[i]); // Kata benar
+            highlightedText.add(TextSpan(
+                text: correctWords[i], style: TextStyle(color: Colors.green)));
+          } else {
+            highlightedText.add(TextSpan(
+                text: correctWords[i], style: TextStyle(color: Colors.red)));
+          }
+        }
+
         scoreUser.value += scoreWrong.value;
         update();
         speakWrongAnswer();
         showNextButton.value = true;
+
+        Get.snackbar(
+          'Incorrect',
+          'Wrong Answer!\nCorrect Answer is: $text',
+          duration: Duration(seconds: 5),
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
       }
 
-      // Mark that the question has been answered
+      // Tandai bahwa pertanyaan sudah dijawab
       isAnswerReady[currentIndex.value] = true;
     }
   }
@@ -256,7 +274,7 @@ class ChatRoomController extends GetxController {
 //   RxList<bool> isTypingComplete = <bool>[].obs;
 //   var isAnswerReady = <bool>[].obs;
 //   List<String> resultWords = [];
-//   String? resultSentence;
+//   String?  entence;
 //   RxDouble scoreCorrect = 0.0.obs;
 //   RxDouble scoreWrong = 0.0.obs;
 

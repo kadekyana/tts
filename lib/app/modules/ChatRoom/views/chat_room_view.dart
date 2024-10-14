@@ -8,11 +8,19 @@ import 'package:typewritertext/typewritertext.dart';
 
 import '../controllers/chat_room_controller.dart';
 
-class ChatRoomView extends GetView<ChatRoomController> {
+class ChatRoomView extends StatefulWidget {
   ChatRoomView({Key? key}) : super(key: key);
 
+  @override
+  State<ChatRoomView> createState() => _ChatRoomViewState();
+}
+
+class _ChatRoomViewState extends State<ChatRoomView> {
+  final ChatRoomController controller = Get.find<ChatRoomController>();
   var answerQuestion = ''.obs;
+
   final Map<String, dynamic> arguments = Get.arguments;
+
   final TextEditingController answer = TextEditingController();
 
   @override
@@ -116,8 +124,16 @@ class ChatRoomView extends GetView<ChatRoomController> {
                                           //     score, timestamp, 1);
                                           final levelController =
                                               Get.find<LevelController>();
-                                          levelController.updateLookAndSayScore(
-                                              levelNo, score);
+                                          if (mode == 'look_and_say') {
+                                            levelController
+                                                .updateLookAndSayScore(
+                                                    levelNo, score);
+                                          } else {
+                                            levelController
+                                                .updateLookAndWriteScore(
+                                                    levelNo, score);
+                                          }
+
                                           Get.offAllNamed('result-page',
                                               arguments:
                                                   score); // Kirim skor yang sudah dibulatkan
@@ -175,9 +191,12 @@ class ChatRoomView extends GetView<ChatRoomController> {
                     child: TextField(
                       controller: answer,
                       onChanged: (text) {
-                        answer.text = text;
-                        controller.text = text;
-                        controller.update();
+                        setState(() {
+                          answer.text = text;
+                          controller.text = answerQuestion.value;
+                        });
+                        print(answer.text);
+                        print(controller.text);
                       },
                       maxLines: null,
                       decoration: InputDecoration(
@@ -268,6 +287,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                   margin: EdgeInsets.all(10),
                   width: Get.width * 0.5,
                   height: Get.height * 0.05,
+                  padding: EdgeInsets.symmetric(horizontal: Get.height * 0.02),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: Color(0xffFDC024),
@@ -275,12 +295,14 @@ class ChatRoomView extends GetView<ChatRoomController> {
                   ),
                   child: Align(
                     alignment: Alignment.center,
-                    child: Text(
-                      'Submit Answer',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
+                    child: FittedBox(
+                      child: Text(
+                        'Submit Answer',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -342,14 +364,16 @@ class ChatItem extends StatelessWidget {
                             topRight: Radius.circular(12),
                             bottomLeft: Radius.circular(12),
                           )),
-                      child: TypeWriter.text(
-                        "$textChat",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 20),
-                        onFinished: (value) {
-                          onTextFinished();
-                        },
-                        duration: Duration(milliseconds: 50),
+                      child: FittedBox(
+                        child: TypeWriter.text(
+                          "$textChat",
+                          textAlign: TextAlign.start,
+                          style: TextStyle(fontFamily: 'Poppins', fontSize: 20),
+                          onFinished: (value) {
+                            onTextFinished();
+                          },
+                          duration: Duration(milliseconds: 50),
+                        ),
                       ),
                     );
                   },

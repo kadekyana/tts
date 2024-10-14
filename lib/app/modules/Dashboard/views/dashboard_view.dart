@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:get/get.dart';
 
 import '../controllers/dashboard_controller.dart';
 
-class DashboardView extends StatelessWidget {
+class DashboardView extends StatefulWidget {
+  DashboardView({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  FlutterTts flutterTts = FlutterTts();
+  @override
+  void initState() {
+    flutterTts.speak('Welcome Back');
+    super.initState();
+  }
+
   final DashboardController controllerDashboard =
       Get.put(DashboardController());
-  DashboardView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
