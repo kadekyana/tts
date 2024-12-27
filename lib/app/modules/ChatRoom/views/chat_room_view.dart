@@ -44,271 +44,286 @@ class _ChatRoomViewState extends State<ChatRoomView> {
         padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
         width: Get.width,
         height: Get.height,
-        child: GestureDetector(
-          child: Obx(() => ListView.builder(
-                itemCount: controller.currentIndex.value + 1,
-                itemBuilder: (BuildContext context, int index) {
-                  final dataChat = conversations[index];
-                  bool cek = index == controller.currentIndex.value;
-                  bool isLastDialog = index == conversations.length - 1;
-                  answerQuestion.value = dataChat['answer']!;
-
-                  return Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 200,
-                          height: 300,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage(dataChat['image']!),
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      ChatItem(
-                        controller: controller,
-                        Sendder: false,
-                        textChat: dataChat['text']!,
-                        highlightText: controller.getHighlightedText(
-                            dataChat['text']!, dataChat['answer']!),
-                        onTextFinished: () {
-                          controller.isTypingComplete[index] = true;
-                          controller.update();
-                        },
-                      ),
-                      Obx(() {
-                        return controller.isTypingComplete[index]
-                            ? ChatItem(
-                                controller: controller,
-                                Sendder: true,
-                                textChat: dataChat['answer']!,
-                                highlightText: [],
-                                onTextFinished: () {},
-                              )
-                            : SizedBox.shrink();
-                      }),
-                      if (cek)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GetBuilder<ChatRoomController>(
-                            builder: (controller) {
-                              print("Next ${controller.showNextButton.value}");
-                              print("Last ${isLastDialog}");
-                              return controller.showNextButton.value ||
-                                      isLastDialog
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        if (isLastDialog) {
-                                          print(
-                                              "Score ${controller.scoreUser.value}");
-                                          DateTime tanggal = DateTime.now();
-                                          String timestamp =
-                                              DateFormat('yyyy-MM-dd')
-                                                  .format(tanggal);
-
-                                          // Konversi skor ke double
-                                          double scoreDouble = double.parse(
-                                              controller.scoreUser.value
-                                                  .toString());
-
-                                          // Lakukan pembulatan
-                                          int score = scoreDouble
-                                              .round(); // Akan membulatkan sesuai aturan .5 ke atas
-
-                                          // SQLHelper.resultScore(
-                                          //     score, timestamp, 1);
-                                          final levelController =
-                                              Get.find<LevelController>();
-                                          if (mode == 'look_and_say') {
-                                            levelController
-                                                .updateLookAndSayScore(
-                                                    levelNo, score);
-                                          } else {
-                                            levelController
-                                                .updateLookAndWriteScore(
-                                                    levelNo, score);
-                                          }
-
-                                          Get.offAllNamed('result-page',
-                                              arguments:
-                                                  score); // Kirim skor yang sudah dibulatkan
-                                          print("Conversation finished");
-                                        } else {
-                                          controller.nextConversation();
-                                        }
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.only(
-                                            bottom: 20, left: 10),
-                                        width: Get.width * 0.3,
-                                        height: Get.height * 0.04,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Color(0xffFDC024),
-                                            boxShadow: [
-                                              BoxShadow(offset: Offset(0, 3))
-                                            ]),
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            isLastDialog
-                                                ? 'Finish'
-                                                : 'Next Dialog',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : SizedBox
-                                      .shrink(); // Hide button if not needed
-                            },
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              )),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        width: Get.width,
-        height: Get.height * 0.2,
         child: Column(
           children: [
-            Spacer(),
-            mode == 'look_and_write'
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
-                      controller: answer,
-                      onChanged: (text) {
-                        setState(() {
-                          answer.text = text;
-                          controller.text = answerQuestion.value;
-                        });
-                        print(answer.text);
-                        print(controller.text);
-                      },
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                        labelText: 'Write Your Answer',
-                        labelStyle: TextStyle(fontFamily: 'Poppins'),
-                        hintText: 'Enter your answer here',
-                        hintStyle: TextStyle(fontFamily: 'Poppins'),
-                      ),
-                    ),
-                  )
-                : GetBuilder<ChatRoomController>(
-                    builder: (controller) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: TextField(
-                          controller:
-                              TextEditingController(text: controller.text),
-                          readOnly: true,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                            labelText: 'Speaking Answare',
-                            labelStyle: TextStyle(fontFamily: 'Poppins'),
-                            hintText: 'Your Speaking Answare write this',
-                            hintStyle: TextStyle(fontFamily: 'Poppins'),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-            Spacer(),
-            if (mode == 'look_and_say')
-              GetBuilder<ChatRoomController>(
-                builder: (controller) {
-                  return controller.isListening
-                      ? CircleAvatar(
-                          child: SpinKitDoubleBounce(color: Colors.red),
-                        )
-                      : GestureDetector(
-                          onTap: () {
-                            controller.startListening();
-                            Future.delayed(Duration(seconds: 3), () {
-                              controller.stopListening(answerQuestion.value);
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.all(10),
-                            width: Get.width * 0.5,
-                            height: Get.height * 0.05,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Color(0xffFDC024),
-                              boxShadow: [BoxShadow(offset: Offset(0, 3))],
-                            ),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Start Speaking',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
+            Expanded(
+              child: GestureDetector(
+                child: Obx(() => ListView.builder(
+                      itemCount: controller.currentIndex.value + 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        final dataChat = conversations[index];
+                        bool cek = index == controller.currentIndex.value;
+                        bool isLastDialog = index == conversations.length - 1;
+                        answerQuestion.value = dataChat['answer']!;
+
+                        return Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: 200,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(dataChat['image']!),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                             ),
-                          ),
+                            SizedBox(height: 10),
+                            ChatItem(
+                              controller: controller,
+                              Sendder: false,
+                              textChat: dataChat['text']!,
+                              highlightText: controller.getHighlightedText(
+                                  dataChat['text']!, dataChat['answer']!),
+                              onTextFinished: () {
+                                controller.isTypingComplete[index] = true;
+                                controller.update();
+                              },
+                            ),
+                            Obx(() {
+                              return controller.isTypingComplete[index]
+                                  ? ChatItem(
+                                      controller: controller,
+                                      Sendder: true,
+                                      textChat: dataChat['answer']!,
+                                      highlightText: [],
+                                      onTextFinished: () {},
+                                    )
+                                  : SizedBox.shrink();
+                            }),
+                            if (cek)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: GetBuilder<ChatRoomController>(
+                                  builder: (controller) {
+                                    print(
+                                        "Next ${controller.showNextButton.value}");
+                                    print("Last ${isLastDialog}");
+                                    return controller.showNextButton.value ||
+                                            isLastDialog
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              if (isLastDialog) {
+                                                print(
+                                                    "Score ${controller.scoreUser.value}");
+                                                DateTime tanggal =
+                                                    DateTime.now();
+                                                String timestamp =
+                                                    DateFormat('yyyy-MM-dd')
+                                                        .format(tanggal);
+
+                                                // Konversi skor ke double
+                                                double scoreDouble =
+                                                    double.parse(controller
+                                                        .scoreUser.value
+                                                        .toString());
+
+                                                // Lakukan pembulatan
+                                                int score = scoreDouble
+                                                    .round(); // Akan membulatkan sesuai aturan .5 ke atas
+
+                                                // SQLHelper.resultScore(
+                                                //     score, timestamp, 1);
+                                                final levelController =
+                                                    Get.find<LevelController>();
+                                                if (mode == 'look_and_say') {
+                                                  levelController
+                                                      .updateLookAndSayScore(
+                                                          levelNo, score);
+                                                } else {
+                                                  levelController
+                                                      .updateLookAndWriteScore(
+                                                          levelNo, score);
+                                                }
+
+                                                Get.offAllNamed('result-page',
+                                                    arguments:
+                                                        score); // Kirim skor yang sudah dibulatkan
+                                                print("Conversation finished");
+                                              } else {
+                                                controller.nextConversation();
+                                              }
+                                            },
+                                            child: Container(
+                                              margin: EdgeInsets.only(
+                                                  bottom: 20, left: 10),
+                                              width: Get.width * 0.3,
+                                              height: Get.height * 0.04,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  color: Color(0xffFDC024),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                        offset: Offset(0, 3))
+                                                  ]),
+                                              child: Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  isLastDialog
+                                                      ? 'Finish'
+                                                      : 'Next Dialog',
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : SizedBox
+                                            .shrink(); // Hide button if not needed
+                                  },
+                                ),
+                              ),
+                          ],
                         );
-                },
+                      },
+                    )),
               ),
-            if (mode == 'look_and_write')
-              GestureDetector(
-                onTap: () {
-                  print(answer.text);
-                  controller.checkAnswer(answer.text);
-                },
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  width: Get.width * 0.5,
-                  height: Get.height * 0.05,
-                  padding: EdgeInsets.symmetric(horizontal: Get.height * 0.02),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Color(0xffFDC024),
-                    boxShadow: [BoxShadow(offset: Offset(0, 3))],
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: FittedBox(
-                      child: Text(
-                        'Submit Answer',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
+            ),
+            Container(
+              width: Get.width,
+              height: Get.height * 0.2,
+              child: Column(
+                children: [
+                  Spacer(),
+                  mode == 'look_and_write'
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            controller: answer,
+                            onChanged: (text) {
+                              answer.text = text;
+                              controller.text = answerQuestion.value;
+                              print(answer.text);
+                              print(controller.text);
+                            },
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide.none,
+                              ),
+                              labelText: 'Write Your Answer',
+                              labelStyle: TextStyle(fontFamily: 'Poppins'),
+                              hintText: 'Enter your answer here',
+                              hintStyle: TextStyle(fontFamily: 'Poppins'),
+                            ),
+                          ),
+                        )
+                      : GetBuilder<ChatRoomController>(
+                          builder: (controller) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextField(
+                                controller: TextEditingController(
+                                    text: controller.text),
+                                readOnly: true,
+                                maxLines: null,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  labelText: 'Speaking Answare',
+                                  labelStyle: TextStyle(fontFamily: 'Poppins'),
+                                  hintText: 'Your Speaking Answare write this',
+                                  hintStyle: TextStyle(fontFamily: 'Poppins'),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                  Spacer(),
+                  if (mode == 'look_and_say')
+                    GetBuilder<ChatRoomController>(
+                      builder: (controller) {
+                        return controller.isListening
+                            ? CircleAvatar(
+                                child: SpinKitDoubleBounce(color: Colors.red),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  controller.startListening();
+                                  Future.delayed(Duration(seconds: 3), () {
+                                    controller
+                                        .stopListening(answerQuestion.value);
+                                  });
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.all(10),
+                                  width: Get.width * 0.5,
+                                  height: Get.height * 0.05,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Color(0xffFDC024),
+                                    boxShadow: [
+                                      BoxShadow(offset: Offset(0, 3))
+                                    ],
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      'Start Speaking',
+                                      style: TextStyle(
+                                        fontSize: 26,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                      },
+                    ),
+                  if (mode == 'look_and_write')
+                    GestureDetector(
+                      onTap: () async {
+                        print(answer.text);
+                        await controller.checkAnswer(answer.text);
+                        answer.clear();
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        width: Get.width * 0.5,
+                        height: Get.height * 0.05,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: Get.height * 0.02),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Color(0xffFDC024),
+                          boxShadow: [BoxShadow(offset: Offset(0, 3))],
+                        ),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            child: Text(
+                              'Submit Answer',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  Spacer(),
+                ],
               ),
-            Spacer(),
+            ),
           ],
         ),
       ),

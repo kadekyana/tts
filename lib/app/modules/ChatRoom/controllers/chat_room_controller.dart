@@ -94,7 +94,7 @@ class ChatRoomController extends GetxController {
   }
 
   // Cek jawaban pengguna
-  void checkAnswer(String answer) async {
+  Future<void> checkAnswer(String answer) async {
     Scoring();
 
     // Cek apakah pertanyaan sudah pernah dijawab
@@ -104,7 +104,7 @@ class ChatRoomController extends GetxController {
         'You already tried it! Let\'s go to the next dialog',
         duration: Duration(seconds: 5),
         colorText: Colors.white,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.amber,
       );
       await flutterTts
           .speak('You already tried it! Let\'s go to the next dialog');
@@ -141,7 +141,7 @@ class ChatRoomController extends GetxController {
           'Correct Answer!\nYour Score Now: $scoreUser',
           duration: Duration(seconds: 5),
           colorText: Colors.white,
-          backgroundColor: Colors.amber,
+          backgroundColor: Colors.green,
         );
       } else {
         // Jika jawaban salah, periksa kata per kata

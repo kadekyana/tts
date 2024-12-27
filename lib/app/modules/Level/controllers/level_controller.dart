@@ -11,7 +11,6 @@ class LevelController extends GetxController {
       'lock': "true"
     },
     {'no': "4", 'title': "Cici Cooks In The Kitchen", 'lock': "true"},
-    {'no': "5", 'title': "Where Is My Pencil?", 'lock': "true"},
   ].obs;
 
   var lookAndWriteLevels = <Map<String, String>>[
@@ -23,7 +22,6 @@ class LevelController extends GetxController {
       'lock': "true"
     },
     {'no': "4", 'title': "Cici Cooks In The Kitchen", 'lock': "true"},
-    {'no': "5", 'title': "Where Is My Pencil?", 'lock': "true"},
   ].obs;
 
   var lookAndSayScores = <int, int>{}.obs;
@@ -233,14 +231,14 @@ class LevelController extends GetxController {
       case 3:
         return [
           {
-            'image': 'assets/images/6.png',
-            'text': "Garage",
-            'answer': "Garage"
+            'image': 'assets/images/kuis3-1.jpeg',
+            'text': "The bedroom is clean",
+            'answer': "Clean"
           },
           {
-            'image': 'assets/images/7.png',
-            'text': "Living Room",
-            'answer': "Living Room"
+            'image': 'assets/images/kuis3-2.jpeg',
+            'text': "The living room is dirty",
+            'answer': "Dirty"
           },
           {
             'image': 'assets/images/8.png',
@@ -261,30 +259,25 @@ class LevelController extends GetxController {
       case 4:
         return [
           {
-            'image': 'assets/images/11.png',
-            'text': "Mr. Ilham reads a book in the living room",
-            'answer': "reads"
+            'image': 'assets/images/kuis4-1.jpeg',
+            'text': "Mr. Udin read a newspaper in the living room",
+            'answer': "read"
           },
           {
-            'image': 'assets/images/12.png',
-            'text': "Joshua watches TV every Saturday",
-            'answer': "Watches"
+            'image': 'assets/images/kuis4-2.jpeg',
+            'text': "Cici and mom watch television in the living room",
+            'answer': "Television"
           },
           {
-            'image': 'assets/images/13.png',
-            'text': "Cici sleeps in the bedroom",
-            'answer': "Sleeps"
+            'image': 'assets/images/kuis4-3.jpeg',
+            'text': "Lili plays doll in the floor",
+            'answer': "Floor"
           },
           {
-            'image': 'assets/images/14.png',
-            'text': "Joshua takes a bath everyday",
-            'answer': "Takes_A_Bath"
-          },
-          {
-            'image': 'assets/images/15.png',
-            'text': "Mrs. Neneng cooks in the kitchen",
-            'answer': "Cooks"
-          },
+            'image': 'assets/images/kuis4-4.jpeg',
+            'text': "Ujang reads story book in the living room",
+            'answer': "Book"
+          }
         ];
       // Tambahkan percakapan untuk level lainnya
       default:

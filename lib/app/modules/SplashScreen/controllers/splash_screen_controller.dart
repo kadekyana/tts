@@ -1,23 +1,14 @@
 import 'package:get/get.dart';
+import 'package:tts/app/modules/Dashboard/views/dashboard_view.dart';
 
 class SplashScreenController extends GetxController {
-  //TODO: Implement SplashScreenController
-
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
+    // Timer untuk splash screen
+    Future.delayed(Duration(seconds: 3), () {
+      Get.off(() => DashboardView()); // Pindah ke DashboardView setelah 3 detik
+    });
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }

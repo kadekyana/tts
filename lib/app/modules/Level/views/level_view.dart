@@ -157,7 +157,7 @@ class WidgetButton extends StatelessWidget {
                     '$title',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
